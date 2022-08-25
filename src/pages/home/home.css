@@ -1,0 +1,17 @@
+.home {
+
+    width: 90vw;
+    margin: 0 auto;
+    height: 100vh;
+
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    background: #f0f5ff;
+
+}

@@ -1,0 +1,29 @@
+.post {
+    width: 800px;
+    margin: 20px 0;
+}
+
+.btn_box {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.btn_post {
+    text-transform: uppercase;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 3px;
+    color: #fff;
+    background: linear-gradient(45deg, #2196f3 30%, #21cbf3 90%);
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.avatar--1 {
+    background: linear-gradient(45deg, #920b4a 30%, #24acca 90%);
+}
+
+.avatar--2 {
+    background: linear-gradient(45deg, #2196f3 30%, #21cbf3 90%);
+}
