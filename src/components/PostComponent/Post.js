@@ -1,19 +1,14 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
-import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Collapse from '@mui/material/Collapse';
 import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { red } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Link } from "react-router-dom";
 import CommentIcon from '@mui/icons-material/Comment';
 import "./post.css"
@@ -35,14 +30,39 @@ const ExpandMore = styled((props) => {
 
 
 
-const Post = ({ id, text, title, userId, username }) => {
+const Post = ({ id: postId, text, title, userId, username }) => {
 
     const [expanded, setExpanded] = useState(false);
     const [liked, setLiked] = useState(false);
     const [commentList, setCommentList] = useState([]);
+    const [likedList, setLikedList] = useState([]);
+    const [likerId, setLikerId] = useState(1);//gecici. buraya online user gelecek
+
+
+    const getLikes = async () => {
+        const { data } = await axios.get(`/api/v1/likes?postId=${postId}`)
+        //console.log(data);
+        setLikedList(data)
+    }
+    //console.log(likedList);
+    useEffect(() => {
+        getLikes()
+
+    }, [])
+
+    const checkLiked = () => {
+        let include = likedList.find(el => el.userId === likerId)
+        if (include) {
+            setLiked(true)
+        }
+    }
+
+    useEffect(() => {
+        checkLiked()
+    }, [likedList])
 
     const getComments = async () => {
-        const { data } = await axios.get(`/api/v1/comments?postId=${id}`);
+        const { data } = await axios.get(`/api/v1/comments?postId=${postId}`);
         console.log(data);
         setCommentList(data);
     }
@@ -51,6 +71,20 @@ const Post = ({ id, text, title, userId, username }) => {
         setExpanded(!expanded);
         getComments();
     };
+
+
+    const handleLike = async () => {
+        if (!liked) {
+            const { data } = await axios.post("/api/v1/likes", { postId, likerId })
+            setLiked(true)
+        } else {
+            await axios.delete(`/api/v1/likes?userId=${likerId}&postId=${postId}`);
+            setLiked(false)
+        }
+
+        getLikes();
+
+    }
 
     return (
         <Card className="post" >
@@ -73,7 +107,8 @@ const Post = ({ id, text, title, userId, username }) => {
             </CardContent>
             <CardActions disableSpacing>
                 <IconButton aria-label="add to favorites">
-                    <FavoriteIcon onClick={() => setLiked(!liked)} style={{ color: liked ? "red" : 'inherit' }} />
+                    <FavoriteIcon onClick={handleLike} style={{ color: liked ? "red" : 'inherit' }} />
+                    <span style={{ fontSize: "16px", marginLeft: "20px" }}>{likedList.length > 0 ? likedList.length : ""}</span>
                 </IconButton>
                 <IconButton aria-label="share">
                     {/*  <ShareIcon /> */}
@@ -90,7 +125,7 @@ const Post = ({ id, text, title, userId, username }) => {
             <Collapse in={expanded} timeout="auto" unmountOnExit>
                 <CardContent>
                     <Typography paragraph>{commentList.length} Comments</Typography>
-                    <CommentForm />
+                    <CommentForm postId={postId} userId="2" getComments={getComments} />
                     <Typography paragraph>
                         {
                             commentList.length === 0 ? <h3>This Post has no Comment yet!</h3> :
